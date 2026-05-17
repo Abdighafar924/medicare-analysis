@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hospital Data Analysis Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-cross">✚</span>
+      <span class="logo-text">MediPulse</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-page="dashboard">
+        <span class="nav-icon">◈</span> Dashboard
+      </a>
+      <a href="#" class="nav-item" data-page="patients">
+        <span class="nav-icon">◉</span> Patients
+      </a>
+      <a href="#" class="nav-item" data-page="add-patient">
+        <span class="nav-icon">⊕</span> Add Patient
+      </a>
+      <a href="#" class="nav-item" data-page="analytics">
+        <span class="nav-icon">◬</span> Analytics
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <span>City General Hospital</span>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="page-title" id="page-title">Dashboard</h1>
+        <p class="page-sub" id="page-sub">Overview & analytics</p>
+      </div>
+      <div class="topbar-right">
+        <div class="date-filter">
+          <select id="filter-period">
+            <option value="all">All Time</option>
+            <option value="today">Today</option>
+            <option value="month">This Month</option>
+          </select>
+        </div>
+        <div class="avatar">Dr</div>
+      </div>
+    </header>
+
+    <!-- ======== PAGE: DASHBOARD ======== -->
+    <section class="page active" id="page-dashboard">
+
+      <!-- STAT CARDS -->
+      <div class="stat-grid">
+        <div class="stat-card accent-teal">
+          <div class="stat-label">Total Patients</div>
+          <div class="stat-value" id="stat-total">—</div>
+          <div class="stat-hint">registered records</div>
+        </div>
+        <div class="stat-card accent-rose">
+          <div class="stat-label">Total Revenue</div>
+          <div class="stat-value" id="stat-revenue">—</div>
+          <div class="stat-hint">billed to date</div>
+        </div>
+        <div class="stat-card accent-amber">
+          <div class="stat-label">Avg Bill</div>
+          <div class="stat-value" id="stat-avg">—</div>
+          <div class="stat-hint">per patient</div>
+        </div>
+        <div class="stat-card accent-violet">
+          <div class="stat-label">Top Doctor</div>
+          <div class="stat-value small" id="stat-doctor">—</div>
+          <div class="stat-hint">most visits</div>
+        </div>
+      </div>
+
+      <!-- CHARTS ROW -->
+      <div class="chart-grid">
+        <div class="chart-card wide">
+          <div class="chart-header">
+            <span class="chart-title">Revenue Over Time</span>
+          </div>
+          <canvas id="chart-revenue"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <span class="chart-title">Disease Breakdown</span>
+          </div>
+          <canvas id="chart-disease"></canvas>
+        </div>
+      </div>
+
+      <!-- HIGHLIGHTS -->
+      <div class="highlight-grid">
+        <div class="highlight-card">
+          <span class="hl-icon teal">↑</span>
+          <div>
+            <div class="hl-label">Highest Bill</div>
+            <div class="hl-value" id="hl-highest">—</div>
+          </div>
+        </div>
+        <div class="highlight-card">
+          <span class="hl-icon rose">↓</span>
+          <div>
+            <div class="hl-label">Lowest Bill</div>
+            <div class="hl-value" id="hl-lowest">—</div>
+          </div>
+        </div>
+        <div class="highlight-card">
+          <span class="hl-icon amber">✦</span>
+          <div>
+            <div class="hl-label">Most Common Disease</div>
+            <div class="hl-value" id="hl-disease">—</div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ======== PAGE: PATIENTS LIST ======== -->
+    <section class="page" id="page-patients">
+      <div class="table-toolbar">
+        <input type="text" id="search-input" class="search-input" placeholder="Search by name, disease, doctor…"/>
+      </div>
+      <div class="table-wrap">
+        <table class="patient-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Age</th>
+              <th>Disease</th>
+              <th>Doctor</th>
+              <th>Visit Date</th>
+              <th>Bill (KSh)</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="patient-tbody">
+            <tr><td colspan="8" class="empty-row">Loading patients…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ======== PAGE: ADD PATIENT ======== -->
+    <section class="page" id="page-add-patient">
+      <div class="form-card">
+        <h2 class="form-heading">New Patient Record</h2>
+        <div class="toast hidden" id="form-toast"></div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="f-name" placeholder="e.g. Jane Mwangi"/>
+          </div>
+          <div class="form-group">
+            <label>Age</label>
+            <input type="number" id="f-age" placeholder="e.g. 34" min="0" max="120"/>
+          </div>
+          <div class="form-group">
+            <label>Disease / Diagnosis</label>
+            <input type="text" id="f-disease" placeholder="e.g. Malaria"/>
+          </div>
+          <div class="form-group">
+            <label>Doctor Name</label>
+            <input type="text" id="f-doctor" placeholder="e.g. Dr. Otieno"/>
+          </div>
+          <div class="form-group">
+            <label>Visit Date</label>
+            <input type="date" id="f-date"/>
+          </div>
+          <div class="form-group">
+            <label>Bill Amount (KSh)</label>
+            <input type="number" id="f-bill" placeholder="e.g. 5000" min="0"/>
+          </div>
+        </div>
+        <button class="btn-submit" id="btn-submit">Add Patient Record</button>
+      </div>
+    </section>
+
+    <!-- ======== PAGE: ANALYTICS ======== -->
+    <section class="page" id="page-analytics">
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-header"><span class="chart-title">Visits by Doctor</span></div>
+          <canvas id="chart-doctor"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><span class="chart-title">Age Distribution</span></div>
+          <canvas id="chart-age"></canvas>
+        </div>
+      </div>
+      <div class="chart-grid" style="margin-top:0">
+        <div class="chart-card wide">
+          <div class="chart-header"><span class="chart-title">Monthly Patient Volume</span></div>
+          <canvas id="chart-monthly"></canvas>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
